@@ -18,7 +18,7 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    public User save(User user){
+    public User saveUser(User user){
         return userRepository.save(user);
     }
 
@@ -31,11 +31,11 @@ public class UserService implements UserDetailsService {
     }
     
     public User updateUser(Long id, User userToUpdate){
-        User user = findUserById(id);
-        if (user != null){
-            user.setUsername(userToUpdate.getUsername());
-            user.setPassword(userToUpdate.getPassword());
-            user.setRole(userToUpdate.getRole());
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()){
+            user.get().setUsername(userToUpdate.getUsername());
+            user.get().setPassword(userToUpdate.getPassword());
+            user.get().setRole(userToUpdate.getPassword());
         }
         return null;
     }
@@ -51,10 +51,8 @@ public class UserService implements UserDetailsService {
     }
     
     public void deleteUser(Long id){
-        User user = findUserById(id);
-        if (user != null){
-            userRepository.delete(user);
-        }
+        Optional<User> user = userRepository.findById(id);
+        user.ifPresent(userRepository::delete);
     }
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {

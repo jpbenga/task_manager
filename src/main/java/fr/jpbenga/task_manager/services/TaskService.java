@@ -6,6 +6,7 @@ import fr.jpbenga.task_manager.repositories.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -25,25 +26,23 @@ public class TaskService {
     }
 
     public Task updateTask(Long id, Task taskToUpdate){
-        Task task = findTaskById(id);
-        if (task != null){
-            task.setTitle(taskToUpdate.getTitle());
-            task.setDescription(taskToUpdate.getDescription());
-            task.setDueDate(taskToUpdate.getDueDate());
-            task.setStatus(taskToUpdate.getStatus());
-            return taskRepository.save(task);
+        Optional<Task> task = taskRepository.findById(id);
+        if (task.isPresent()){
+            task.get().setDescription(taskToUpdate.getDescription());
+            task.get().setTitle(taskToUpdate.getTitle());
+            task.get().setStatus(taskToUpdate.getStatus());
+            task.get().setDueDate(taskToUpdate.getDueDate());
+            task.get().setUser(taskToUpdate.getUser());
         }
         return null;
     }
 
     public void deleteTask(Long id){
-        Task task = findTaskById(id);
-        if (task != null){
-            taskRepository.delete(task);
-        }
+        Optional<Task> task = taskRepository.findById(id);
+        task.ifPresent(taskRepository::delete);
     }
 
-    public Task save(Task task){
+    public Task saveTask(Task task){
         return taskRepository.save(task);
     }
 
