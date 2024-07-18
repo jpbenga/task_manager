@@ -35,18 +35,18 @@ public class TaskServiceTest  {
 
         given(taskRepository.findById(1L)).willReturn(Optional.of(task));
 
-        Task foundTask = taskService.findTaskById(1L);
+        Optional<Task> foundTask = taskService.findTaskById(1L);
 
         assertThat(foundTask).isNotNull();
-        assertThat(foundTask.getId()).isEqualTo(1L);
+        assertThat(foundTask.get().getId()).isEqualTo(1L);
     }
 
     @Test
     void shouldReturnNullWhenTaskDoesNotExist(){
         given(taskRepository.findById(1L)).willReturn(Optional.empty());
 
-        Task foundTask = taskService.findTaskById(1L);
+        Optional<Task> foundTask = taskService.findTaskById(1L);
 
-        assertThat(foundTask).isNull();
+        assertThat(foundTask).isEmpty();
     }
 }

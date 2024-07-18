@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.Optional;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -64,7 +64,7 @@ public class TaskControllerTest {
         task.setDueDate(LocalDate.now());
         task.setStatus("Pending");
 
-        given(taskService.findTaskById(1L)).willReturn(task);
+        given(taskService.findTaskById(1L)).willReturn(Optional.of(task));
 
         ResponseEntity<Task> response = taskController.getTaskById(1L);
 

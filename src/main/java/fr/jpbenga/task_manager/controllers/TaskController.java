@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/tasks")
@@ -26,8 +27,9 @@ public class TaskController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id){
-        Task task = taskService.findTaskById(id);
-        return new ResponseEntity<>(task, HttpStatus.OK);
+        Optional<Task> task = taskService.findTaskById(id);
+        return task.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
@@ -46,9 +48,9 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id){
-        Task task = taskService.findTaskById(id);
-        if (task == null){
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        Optional<Task> task = taskService.findTaskById(id);
+        if (task.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         taskService.deleteTask(id);
