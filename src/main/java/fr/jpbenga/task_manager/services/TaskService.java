@@ -3,6 +3,7 @@ package fr.jpbenga.task_manager.services;
 import fr.jpbenga.task_manager.models.Task;
 import fr.jpbenga.task_manager.models.User;
 import fr.jpbenga.task_manager.repositories.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,11 +12,8 @@ import java.util.Optional;
 @Service
 public class TaskService {
 
-    private final TaskRepository taskRepository;
-
-    public TaskService(TaskRepository taskRepository ){
-        this.taskRepository = taskRepository;
-    }
+    @Autowired
+    private TaskRepository taskRepository;
 
     public List<Task> findAllTasks(){
         return taskRepository.findAll();

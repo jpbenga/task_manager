@@ -9,14 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskServiceTest  {
+public class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
@@ -25,28 +24,25 @@ public class TaskServiceTest  {
     private TaskService taskService;
 
     @Test
-    void shouldReturnTaskById(){
+    void shouldReturnEmptyWhenTaskDoesNotExist(){
+        given(taskRepository.findById(1L)).willReturn(Optional.empty());
+
+        Optional<Task> task = taskService.findTaskById(1L);
+
+        assertThat(task).isEmpty();
+    }
+
+    @Test
+    void shouldReturnTaskWhenTaskExists(){
         Task task = new Task();
         task.setId(1L);
-        task.setTitle("Task 1");
-        task.setDescription("Description 1");
-        task.setDueDate(LocalDate.now());
-        task.setStatus("Pending");
+        task.setTitle("task test");
 
         given(taskRepository.findById(1L)).willReturn(Optional.of(task));
 
         Optional<Task> foundTask = taskService.findTaskById(1L);
 
-        assertThat(foundTask).isNotNull();
+        assertThat(foundTask).isPresent();
         assertThat(foundTask.get().getId()).isEqualTo(1L);
-    }
-
-    @Test
-    void shouldReturnNullWhenTaskDoesNotExist(){
-        given(taskRepository.findById(1L)).willReturn(Optional.empty());
-
-        Optional<Task> foundTask = taskService.findTaskById(1L);
-
-        assertThat(foundTask).isEmpty();
     }
 }
