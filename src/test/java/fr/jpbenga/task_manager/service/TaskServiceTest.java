@@ -1,6 +1,7 @@
 package fr.jpbenga.task_manager.service;
 
 import fr.jpbenga.task_manager.models.Task;
+import fr.jpbenga.task_manager.models.User;
 import fr.jpbenga.task_manager.repositories.TaskRepository;
 import fr.jpbenga.task_manager.services.TaskService;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,9 +36,12 @@ public class TaskServiceTest {
 
     @Test
     void shouldReturnTaskWhenTaskExists(){
-        Task task = new Task();
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        Task task = new Task("task test", "This is a test task", LocalDate.now().plusDays(7), "Pending", user);
         task.setId(1L);
-        task.setTitle("task test");
 
         given(taskRepository.findById(1L)).willReturn(Optional.of(task));
 
@@ -44,5 +49,10 @@ public class TaskServiceTest {
 
         assertThat(foundTask).isPresent();
         assertThat(foundTask.get().getId()).isEqualTo(1L);
+        assertThat(foundTask.get().getTitle()).isEqualTo("task test");
+        assertThat(foundTask.get().getDescription()).isEqualTo("This is a test task");
+        assertThat(foundTask.get().getDueDate()).isEqualTo(LocalDate.now().plusDays(7));
+        assertThat(foundTask.get().getStatus()).isEqualTo("Pending");
+        assertThat(foundTask.get().getUser()).isEqualTo(user);
     }
 }

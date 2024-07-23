@@ -19,4 +19,12 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Task(String title, String description, LocalDate dueDate, String status, User user) {
+        this.title = title;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.status = status;
+        this.user = user;
+    }
 }
