@@ -46,10 +46,4 @@ public class TaskControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.title").value("task test"));
     }
-
-    @Test
-    void shouldFailThisTest() {
-        assertThat(true).isFalse();
-    }
-
 }
