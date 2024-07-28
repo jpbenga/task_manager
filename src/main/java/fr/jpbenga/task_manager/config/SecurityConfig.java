@@ -10,10 +10,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    private final CorsFilter corsFilter;
+
+    public SecurityConfig(CorsFilter corsFilter) {
+        this.corsFilter = corsFilter;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -23,21 +30,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/auth/**").permitAll() // Permet l'accès aux endpoints d'authentification
-                                .requestMatchers("/h2-console/**").permitAll() // Permet l'accès à la console H2 (à retirer en production)
-                                .anyRequest().authenticated()
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/auth/login").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .headers(headers ->
-                        headers.frameOptions(frameOptions ->
-                                frameOptions.sameOrigin() // Pour H2 Console
-                        )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
                 )
-                .csrf(csrf ->
-                        csrf.ignoringRequestMatchers("/h2-console/**", "/auth/**")
-                )// Désactiver CSRF pour H2 Console
-
                 .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
