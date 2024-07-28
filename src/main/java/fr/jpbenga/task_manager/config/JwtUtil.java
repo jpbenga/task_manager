@@ -1,5 +1,6 @@
 package fr.jpbenga.task_manager.config;
 
+import fr.jpbenga.task_manager.models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,9 +14,9 @@ import java.util.function.Function;
 public class JwtUtil {
     private String secret = "yourSecretKey";
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, user.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

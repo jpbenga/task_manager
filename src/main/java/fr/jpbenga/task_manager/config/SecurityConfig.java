@@ -2,46 +2,43 @@ package fr.jpbenga.task_manager.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Désactiver la protection CSRF
-                .authorizeHttpRequests(authorizeRequests ->
+                .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers(antMatcher("/h2-console/**")).permitAll() // Permet l'accès à la console H2
-                                .anyRequest().authenticated() // Exiger une authentification pour toutes les autres requêtes
+                                .requestMatchers("/auth/**").permitAll() // Permet l'accès aux endpoints d'authentification
+                                .requestMatchers("/h2-console/**").permitAll() // Permet l'accès à la console H2 (à retirer en production)
+                                .anyRequest().authenticated()
                 )
                 .headers(headers ->
-                        headers
-                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin) // Permet l'affichage des iFrames pour H2 Console
+                        headers.frameOptions(frameOptions ->
+                                frameOptions.sameOrigin() // Pour H2 Console
+                        )
                 )
-                .formLogin(formLogin ->
-                        formLogin
-                                .loginPage("/login")
-                                .permitAll() // Permet l'accès à la page de connexion sans authentification
-                )
-                .logout(logout ->
-                        logout.permitAll() // Permet l'accès à la déconnexion sans authentification
-                )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Utiliser une session sans état
-                );
+                .csrf(csrf ->
+                        csrf.ignoringRequestMatchers("/h2-console/**", "/auth/**")
+                )// Désactiver CSRF pour H2 Console
+
+                .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -49,5 +46,15 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtRequestFilter jwtRequestFilter() {
+        return new JwtRequestFilter();
+    }
+
+    @Bean
+    public JwtUtil jwtUtil() {
+        return new JwtUtil();
     }
 }
