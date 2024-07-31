@@ -23,14 +23,16 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public Task updateTask(Long id, Task taskToUpdate){
-        Optional<Task> task = taskRepository.findById(id);
-        if (task.isPresent()){
-            task.get().setDescription(taskToUpdate.getDescription());
-            task.get().setTitle(taskToUpdate.getTitle());
-            task.get().setStatus(taskToUpdate.getStatus());
-            task.get().setDueDate(taskToUpdate.getDueDate());
-            task.get().setUser(taskToUpdate.getUser());
+    public Task updateTask(Long id, Task taskToUpdate) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if (optionalTask.isPresent()) {
+            Task task = optionalTask.get();
+            task.setDescription(taskToUpdate.getDescription());
+            task.setTitle(taskToUpdate.getTitle());
+            task.setStatus(taskToUpdate.getStatus());
+            task.setDueDate(taskToUpdate.getDueDate());
+            task.setUser(taskToUpdate.getUser());
+            return taskRepository.save(task);
         }
         return null;
     }
