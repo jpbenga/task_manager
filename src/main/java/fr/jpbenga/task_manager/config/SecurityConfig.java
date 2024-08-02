@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/auth/login").permitAll()
+                        .requestMatchers("/auth/**", "/auth/login", "/users/register").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/tasks/**").authenticated()
                         .anyRequest().authenticated()
